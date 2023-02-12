@@ -1,10 +1,14 @@
 import React from "react";
 
-import { NavLink } from "react-router-dom";
 import navLinks from "../../assets/dummy-data/navLinks";
 import "./sidebar.css";
+import { NavLink, useLocation } from 'react-router-dom';
+
 
 const Sidebar = () => {
+
+  const location = useLocation();
+
   return (
     <div className="sidebar">
       <div className="sidebar__top">
@@ -24,8 +28,10 @@ const Sidebar = () => {
               <li className="nav__item" key={index}>
                 <NavLink
                   to={item.path}
-                  className={(navClass) =>
-                    navClass.isActive ? "nav__active nav__link" : "nav__link"
+                  className={
+                    location.pathname.includes(item.path)
+                      ? "nav__active nav__link"
+                      : "nav__link"
                   }
                 >
                   <i className={item.icon}></i>

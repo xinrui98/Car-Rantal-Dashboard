@@ -16,12 +16,10 @@ import { API } from "aws-amplify";
 import { listTodos } from "../graphql/queries";
 import { createTodo, deleteTodo } from "../graphql/mutations";
 
-import RoundButton from '../components/UI/RoundButton';
-import { useNavigate } from 'react-router-dom';
+import RoundButton from "../components/UI/RoundButton";
+import { useNavigate } from "react-router-dom";
 
-
-
-const Dashboard = () => {
+const DashboardMonth = () => {
   const carObj = {
     title: "Total Climbs",
     totalNumber: 750,
@@ -46,7 +44,7 @@ const Dashboard = () => {
     icon: "ri-heart-pulse-fill",
   };
 
-  const [selectedColor, setSelectedColor] = useState('blue');
+  const [selectedColor, setSelectedColor] = useState("blue");
 
   const [notes, setNotes] = useState([]);
   const [climbs, setClimbs] = useState({});
@@ -349,27 +347,38 @@ const Dashboard = () => {
   const navigate = useNavigate();
 
   const handleClick = () => {
-    navigate("/dashboard-month");
+    navigate("/dashboard");
   };
-
 
   return (
     <div className="dashboard">
       <div className="dashboard__wrapper">
         <div className="filter__widget-wrapper">
           <div className="filter__widget-01">
-            <RoundButton text="Week" color="#00bfff" onClick={() => handleClick()} />
+            <RoundButton
+              text="Week"
+              color="gray"
+              onClick={() => handleClick()}
+            />
           </div>
 
           <div className="filter__widget-01">
-            <RoundButton text="Month" color="gray" onClick={() => handleClick()} />
+            <RoundButton
+              text="Month"
+              color="#00bfff"
+              onClick={() => handleClick()}
+            />
           </div>
           <div className="filter__widget-01">
-            <RoundButton text="Year" color="gray" onClick={() => handleClick()} />
+            <RoundButton
+              text="Year"
+              color="gray"
+              onClick={() => handleClick()}
+            />
           </div>
         </div>
 
-        <div style={{ height: '25px' }} />
+        <div style={{ height: "25px" }} />
 
         <div className="dashboard__cards">
           <SingleCard item={climbs} />
@@ -385,7 +394,9 @@ const Dashboard = () => {
           </div>
 
           <div className="stats">
-            <h3 className="stats__title">Total Calories Burnt (KCal) / AVG. Heart Rate (BPM)</h3>
+            <h3 className="stats__title">
+              Total Calories Burnt (KCal) / AVG. Heart Rate (BPM)
+            </h3>
             <CarStatsChart carStaticsData={caloriesHeartRate} />
           </div>
         </div>
@@ -400,4 +411,4 @@ const Dashboard = () => {
   );
 };
 
-export default Dashboard;
+export default DashboardMonth;
