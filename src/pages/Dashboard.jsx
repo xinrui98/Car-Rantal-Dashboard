@@ -190,7 +190,7 @@ const Dashboard = () => {
       console.log(dateDictCalories);
 
       for (var e of dates) {
-        if (dateDictCalories[e] != 0 && dateDictCount != 0) {
+        if (dateDictCalories[e] !== 0 && dateDictCount !== 0) {
           dateDictCalories[e] = Math.floor(
             dateDictCalories[e] / dateDictCount[e]
           );
@@ -198,7 +198,7 @@ const Dashboard = () => {
 
         var tempDict = {
           name: daysOfWeek[idx],
-          mileStats: dateDictCalories[e],
+          timeTaken: dateDictCalories[e],
         };
         finalWeeklyStats.push(tempDict);
         idx += 1;
@@ -306,7 +306,7 @@ const Dashboard = () => {
     var idx = 0;
 
     for (var e of dates) {
-      if (dateDictHeartRate[e] != 0 && dateDictCount != 0) {
+      if (dateDictHeartRate[e] !== 0 && dateDictCount !== 0) {
         dateDictHeartRate[e] = Math.floor(
           dateDictHeartRate[e] / dateDictCount[e]
         );
