@@ -368,12 +368,12 @@ const Dashboard = () => {
 
         <div className="statics">
           <div className="stats">
-            <h3 className="stats__title">AVG. Time Taken</h3>
+            <h3 className="stats__title">AVG. Time Taken (s)</h3>
             <MileChart mileStaticsData={weeklyStats} />
           </div>
 
           <div className="stats">
-            <h3 className="stats__title">Total Calories Burnt / Heart Rate</h3>
+            <h3 className="stats__title">Total Calories Burnt (KCal) / AVG. Heart Rate (BPM)</h3>
             <CarStatsChart carStaticsData={caloriesHeartRate} />
           </div>
         </div>
