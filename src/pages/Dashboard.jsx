@@ -1,6 +1,10 @@
 import "../styles/dashboard.css";
 import SingleCard from "../components/reuseable/SingleCard";
 
+import blueRockWall from "../assets/images/blue-rockwall.png";
+import greenRockWall from "../assets/images/green-rockwall.png";
+import redRockWall from "../assets/images/red-rockwall.png";
+
 import MileChart from "../charts/MileChart";
 import CarStatsChart from "../charts/CarStatsChart";
 import RecommendCarCard from "../components/UI/RecommendCarCard";
@@ -42,6 +46,9 @@ const Dashboard = () => {
   const [minutes, setMinutes] = useState({});
   const [calories, setCalories] = useState({});
   const [heartRate, setHeartRate] = useState({});
+  const [weeklyStats, setWeeklyStats] = useState([]);
+  const [colorPercentage, setColorPercentage] = useState([]);
+  const [caloriesHeartRate, setCaloriesHeartRate] = useState([]);
 
   useEffect(() => {
     fetchNotes();
@@ -62,6 +69,18 @@ const Dashboard = () => {
   useEffect(() => {
     fetchHeartRate();
   }, {});
+
+  useEffect(() => {
+    fetchWeeklyStats();
+  }, {});
+
+  useEffect(() => {
+    fetchColorPercentage();
+  }, []);
+
+  useEffect(() => {
+    fetchCaloriesHeartRate();
+  }, []);
 
   async function fetchNotes() {
     const apiData = await API.graphql({ query: listTodos });
@@ -91,7 +110,7 @@ const Dashboard = () => {
     }, 0);
 
     const minutesObject = {
-      title: "Total Hours Spent",
+      title: "Total Minutes Spent",
       totalNumber: Math.floor(numSeconds / 60).toString(),
       icon: "ri-time-line",
     };
@@ -127,6 +146,182 @@ const Dashboard = () => {
       icon: "ri-heart-pulse-fill",
     };
     setHeartRate(heartRateObject);
+  }
+
+  async function fetchWeeklyStats() {
+    const apiData = await API.graphql({ query: listTodos });
+    const notesFromAPI = apiData.data.listTodos.items;
+
+    // instantiate weekly date dictionary
+    let dates = [];
+    let dateDictCalories = {};
+    let dateDictCount = {};
+
+    let date = new Date();
+    let dayOfWeek = date.getDay();
+    let diff = date.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1);
+    let firstDayOfWeek = new Date(date.setDate(diff));
+
+    for (let i = 0; i < 7; i++) {
+      let currentDate = new Date(firstDayOfWeek);
+      currentDate.setDate(currentDate.getDate() + i);
+      let formattedDate = currentDate.toLocaleDateString("en-GB", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "2-digit",
+      });
+      dates.push(formattedDate);
+      dateDictCalories[formattedDate] = 0;
+      dateDictCount[formattedDate] = 0;
+
+      notesFromAPI.forEach(function (input) {
+        if (dates.includes(input.date)) {
+          dateDictCalories[input.date] += parseInt(input["timeInSeconds"]);
+          dateDictCount[input.date] += 1;
+        }
+      });
+
+      const finalWeeklyStats = [];
+
+      const daysOfWeek = ["Sun", "Mon", "Tues", "Wed", "Thurs", "Fri", "Sat"];
+      var idx = 0;
+
+      console.log("dateDictCalories");
+      console.log(dateDictCalories);
+
+      for (var e of dates) {
+        if (dateDictCalories[e] != 0 && dateDictCount != 0) {
+          dateDictCalories[e] = Math.floor(
+            dateDictCalories[e] / dateDictCount[e]
+          );
+        }
+
+        var tempDict = {
+          name: daysOfWeek[idx],
+          mileStats: dateDictCalories[e],
+        };
+        finalWeeklyStats.push(tempDict);
+        idx += 1;
+      }
+
+      setWeeklyStats(finalWeeklyStats);
+    }
+  }
+
+  async function fetchColorPercentage() {
+    const apiData = await API.graphql({ query: listTodos });
+    const notesFromAPI = apiData.data.listTodos.items;
+
+    const length = notesFromAPI.length;
+
+    let colorsPercentage = {};
+    colorsPercentage["blue"] = 0;
+    colorsPercentage["green"] = 0;
+    colorsPercentage["red"] = 0;
+
+    notesFromAPI.forEach(function (input) {
+      colorsPercentage[input.color] += 1;
+    });
+
+    colorsPercentage["blue"] = Math.floor(
+      (100 * colorsPercentage["blue"]) / length
+    );
+    colorsPercentage["green"] = Math.floor(
+      (100 * colorsPercentage["green"]) / length
+    );
+    colorsPercentage["red"] = Math.floor(
+      (100 * colorsPercentage["red"]) / length
+    );
+
+    const colorsObject = [
+      {
+        id: "01",
+        carName: "Mini Cooper",
+        rentPrice: 32,
+        retweet: "132",
+        imgUrl: blueRockWall,
+        percentage: colorsPercentage["blue"].toString(),
+      },
+      {
+        id: "02",
+        carName: "Porsche 911 Carrera",
+        rentPrice: 28,
+        retweet: "130",
+        imgUrl: greenRockWall,
+        percentage: colorsPercentage["green"].toString(),
+      },
+      {
+        id: "03",
+        carName: "Porsche 911 Carrera",
+        rentPrice: 28,
+        retweet: "130",
+        imgUrl: redRockWall,
+        percentage: colorsPercentage["red"].toString(),
+      },
+    ];
+
+    setColorPercentage(colorsObject);
+  }
+
+  async function fetchCaloriesHeartRate() {
+    const apiData = await API.graphql({ query: listTodos });
+    const notesFromAPI = apiData.data.listTodos.items;
+
+    // instantiate weekly date dictionary
+    let dates = [];
+    let dateDictCalories = {};
+    let dateDictHeartRate = {};
+    let dateDictCount = {};
+
+    let date = new Date();
+    let dayOfWeek = date.getDay();
+    let diff = date.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1);
+    let firstDayOfWeek = new Date(date.setDate(diff));
+
+    for (let i = 0; i < 7; i++) {
+      let currentDate = new Date(firstDayOfWeek);
+      currentDate.setDate(currentDate.getDate() + i);
+      let formattedDate = currentDate.toLocaleDateString("en-GB", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "2-digit",
+      });
+      dates.push(formattedDate);
+      dateDictCalories[formattedDate] = 0;
+      dateDictHeartRate[formattedDate] = 0;
+      dateDictCount[formattedDate] = 0;
+    }
+
+    notesFromAPI.forEach(function (input) {
+      if (dates.includes(input.date)) {
+        dateDictCalories[input.date] += parseInt(input["calories"]);
+        dateDictHeartRate[input.date] += parseInt(input["heartRate"]);
+        dateDictCount[input.date] += 1;
+      }
+    });
+
+    const finalWeeklyStats = [];
+
+    const daysOfWeek = ["Sun", "Mon", "Tues", "Wed", "Thurs", "Fri", "Sat"];
+    var idx = 0;
+
+    for (var e of dates) {
+      if (dateDictHeartRate[e] != 0 && dateDictCount != 0) {
+        dateDictHeartRate[e] = Math.floor(
+          dateDictHeartRate[e] / dateDictCount[e]
+        );
+      }
+
+      var tempDict = {
+        name: daysOfWeek[idx],
+        calories: dateDictCalories[e],
+        heartRate: dateDictHeartRate[e],
+      };
+      finalWeeklyStats.push(tempDict);
+      idx += 1;
+    }
+
+    setCaloriesHeartRate(finalWeeklyStats);
   }
 
   async function createNote(event) {
@@ -174,17 +369,17 @@ const Dashboard = () => {
         <div className="statics">
           <div className="stats">
             <h3 className="stats__title">AVG. Time Taken</h3>
-            <MileChart />
+            <MileChart mileStaticsData={weeklyStats} />
           </div>
 
           <div className="stats">
-            <h3 className="stats__title">AVG. Calories Burnt</h3>
-            <CarStatsChart />
+            <h3 className="stats__title">Total Calories Burnt / Heart Rate</h3>
+            <CarStatsChart carStaticsData={caloriesHeartRate} />
           </div>
         </div>
 
         <div className="recommend__cars-wrapper">
-          {recommendCarsData.map((item) => (
+          {colorPercentage.map((item) => (
             <RecommendCarCard item={item} key={item.id} />
           ))}
         </div>

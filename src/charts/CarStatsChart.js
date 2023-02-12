@@ -8,14 +8,12 @@ import {
   Area,
 } from "recharts";
 
-import carStaticsData from "../assets/dummy-data/carStatics";
-import mileStatics from "../assets/dummy-data/mileStatics";
 
-const CarStatsChart = () => {
+const CarStatsChart = (props) => {
   return (
     <ResponsiveContainer width="100%">
       <AreaChart
-        data={carStaticsData}
+        data={props.carStaticsData}
         margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
       >
         <defs>
@@ -34,14 +32,14 @@ const CarStatsChart = () => {
         <Tooltip wrapperClassName="tooltip__style" cursor={false} />
         <Area
           type="monotone"
-          dataKey="week"
+          dataKey="calories"
           stroke="#8884d8"
           fillOpacity={1}
           fill="url(#colorUv)"
         />
         <Area
           type="monotone"
-          dataKey="prevWeek"
+          dataKey="heartRate"
           stroke="#82ca9d"
           fillOpacity={1}
           fill="url(#colorPv)"

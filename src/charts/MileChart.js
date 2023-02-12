@@ -4,10 +4,10 @@ import { ResponsiveContainer, BarChart, Bar, XAxis, Tooltip } from "recharts";
 
 import mileStaticsData from "../assets/dummy-data/mileStatics";
 
-const mileChart = () => {
+const mileChart = (props) => {
   return (
     <ResponsiveContainer width="100%">
-      <BarChart data={mileStaticsData}>
+      <BarChart data={props.mileStaticsData}>
         <XAxis dataKey="name" stroke="#2884ff" />
         <Bar dataKey="mileStats" stroke="#2884ff" fill="#2884ff" barSize={30} />
 
