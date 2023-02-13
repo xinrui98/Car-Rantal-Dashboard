@@ -76,7 +76,7 @@ const DashboardMonth = () => {
   }, {});
 
   useEffect(() => {
-    fetchWeeklyStats();
+    fetchMonthlyStats();
   }, {});
 
   useEffect(() => {
@@ -153,64 +153,102 @@ const DashboardMonth = () => {
     setHeartRate(heartRateObject);
   }
 
-  async function fetchWeeklyStats() {
+  async function fetchMonthlyStats() {
     const apiData = await API.graphql({ query: listTodos });
     const notesFromAPI = apiData.data.listTodos.items;
 
-    // instantiate weekly date dictionary
-    let dates = [];
+    let dates = [0, 1, 2, 3];
     let dateDictCalories = {};
     let dateDictCount = {};
 
-    let date = new Date();
-    let dayOfWeek = date.getDay();
-    let diff = date.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1);
-    let firstDayOfWeek = new Date(date.setDate(diff));
+    dateDictCalories[0] = 0;
+    dateDictCalories[1] = 0;
+    dateDictCalories[2] = 0;
+    dateDictCalories[3] = 0;
 
-    for (let i = 0; i < 7; i++) {
-      let currentDate = new Date(firstDayOfWeek);
-      currentDate.setDate(currentDate.getDate() + i);
-      let formattedDate = currentDate.toLocaleDateString("en-GB", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "2-digit",
-      });
-      dates.push(formattedDate);
-      dateDictCalories[formattedDate] = 0;
-      dateDictCount[formattedDate] = 0;
+    dateDictCount[0] = 0;
+    dateDictCount[1] = 0;
+    dateDictCount[2] = 0;
+    dateDictCount[3] = 0;
 
-      notesFromAPI.forEach(function (input) {
-        if (dates.includes(input.date)) {
-          dateDictCalories[input.date] += parseInt(input["timeInSeconds"]);
-          dateDictCount[input.date] += 1;
-        }
-      });
+    var date = new Date();
+    var month = date.getMonth();
+    var year = date.getFullYear();
 
-      const finalWeeklyStats = [];
+    var firstDay = new Date(year, month, 1);
+    var lastDay = new Date(year, month + 1, 0);
 
-      const daysOfWeek = ["Sun", "Mon", "Tues", "Wed", "Thurs", "Fri", "Sat"];
-      var idx = 0;
+    var quarter1Start = new Date(year, month, 1);
+    var quarter1End = new Date(
+      year,
+      month,
+      Math.floor((lastDay.getDate() - firstDay.getDate()) / 4) +
+        firstDay.getDate()
+    );
 
-      console.log("dateDictCalories");
-      console.log(dateDictCalories);
+    var quarter2Start = new Date(year, month, quarter1End.getDate() + 1);
+    var quarter2End = new Date(
+      year,
+      month,
+      quarter1End.getDate() +
+        Math.floor((lastDay.getDate() - quarter1End.getDate()) / 3)
+    );
 
-      for (var e of dates) {
-        if (dateDictCalories[e] !== 0 && dateDictCount !== 0) {
-          dateDictCalories[e] = Math.floor(
-            dateDictCalories[e] / dateDictCount[e]
-          );
-        }
+    var quarter3Start = new Date(year, month, quarter2End.getDate() + 1);
+    var quarter3End = new Date(
+      year,
+      month,
+      quarter2End.getDate() +
+        Math.floor((lastDay.getDate() - quarter2End.getDate()) / 2)
+    );
 
-        var tempDict = {
-          name: daysOfWeek[idx],
-          timeTaken: dateDictCalories[e],
-        };
-        finalWeeklyStats.push(tempDict);
-        idx += 1;
+    var quarter4Start = new Date(year, month, quarter3End.getDate() + 1);
+    var quarter4End = lastDay;
+
+    notesFromAPI.forEach(function (input) {
+      var dateComponents = input.date.split("/");
+      var day = parseInt(dateComponents[0]);
+      var month = parseInt(dateComponents[1]) - 1;
+      var year = 2000 + parseInt(dateComponents[2]);
+      var date = new Date(year, month, day);
+
+      if (date >= quarter1Start && date <= quarter1End) {
+        dateDictCalories[0] += parseInt(input["timeInSeconds"]);
+        dateDictCount[0] += 1;
+      } else if (date >= quarter2Start && date <= quarter2End) {
+        dateDictCalories[1] += parseInt(input["timeInSeconds"]);
+        dateDictCount[1] += 1;
+      } else if (date >= quarter3Start && date <= quarter3End) {
+        dateDictCalories[2] += parseInt(input["timeInSeconds"]);
+        dateDictCount[2] += 1;
+      } else if (date >= quarter4Start && date <= quarter4End) {
+        dateDictCalories[3] += parseInt(input["timeInSeconds"]);
+        dateDictCount[3] += 1;
+      }
+    });
+
+    const finalMonthlyStats = [];
+
+    console.log("monthly stats");
+    console.log(dateDictCalories);
+    console.log(dateDictCount);
+
+    for (var e of dates) {
+      if (dateDictCalories[e] !== 0 && dateDictCount[e] !== 0) {
+        dateDictCalories[e] = Math.floor(
+          dateDictCalories[e] / dateDictCount[e]
+        );
+        
       }
 
-      setWeeklyStats(finalWeeklyStats);
+      var tempDict = {
+        name: "Week " + (e + 1).toString(),
+        timeTaken: dateDictCalories[e],
+      };
+      finalMonthlyStats.push(tempDict);
     }
+
+    setWeeklyStats(finalMonthlyStats);
   }
 
   async function fetchColorPercentage() {
@@ -272,61 +310,117 @@ const DashboardMonth = () => {
     const apiData = await API.graphql({ query: listTodos });
     const notesFromAPI = apiData.data.listTodos.items;
 
-    // instantiate weekly date dictionary
-    let dates = [];
+    let dates = [0, 1, 2, 3];
     let dateDictCalories = {};
     let dateDictHeartRate = {};
     let dateDictCount = {};
 
-    let date = new Date();
-    let dayOfWeek = date.getDay();
-    let diff = date.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1);
-    let firstDayOfWeek = new Date(date.setDate(diff));
+    dateDictCalories[0] = 0;
+    dateDictCalories[1] = 0;
+    dateDictCalories[2] = 0;
+    dateDictCalories[3] = 0;
 
-    for (let i = 0; i < 7; i++) {
-      let currentDate = new Date(firstDayOfWeek);
-      currentDate.setDate(currentDate.getDate() + i);
-      let formattedDate = currentDate.toLocaleDateString("en-GB", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "2-digit",
-      });
-      dates.push(formattedDate);
-      dateDictCalories[formattedDate] = 0;
-      dateDictHeartRate[formattedDate] = 0;
-      dateDictCount[formattedDate] = 0;
-    }
+    dateDictHeartRate[0] = 0;
+    dateDictHeartRate[1] = 0;
+    dateDictHeartRate[2] = 0;
+    dateDictHeartRate[3] = 0;
+
+    dateDictCount[0] = 0;
+    dateDictCount[1] = 0;
+    dateDictCount[2] = 0;
+    dateDictCount[3] = 0;
+
+    var date = new Date();
+    var month = date.getMonth();
+    var year = date.getFullYear();
+
+    var firstDay = new Date(year, month, 1);
+    var lastDay = new Date(year, month + 1, 0);
+
+    var quarter1Start = new Date(year, month, 1);
+    var quarter1End = new Date(
+      year,
+      month,
+      Math.floor((lastDay.getDate() - firstDay.getDate()) / 4) +
+        firstDay.getDate()
+    );
+
+    var quarter2Start = new Date(year, month, quarter1End.getDate() + 1);
+    var quarter2End = new Date(
+      year,
+      month,
+      quarter1End.getDate() +
+        Math.floor((lastDay.getDate() - quarter1End.getDate()) / 3)
+    );
+
+    var quarter3Start = new Date(year, month, quarter2End.getDate() + 1);
+    var quarter3End = new Date(
+      year,
+      month,
+      quarter2End.getDate() +
+        Math.floor((lastDay.getDate() - quarter2End.getDate()) / 2)
+    );
+
+    var quarter4Start = new Date(year, month, quarter3End.getDate() + 1);
+    var quarter4End = lastDay;
 
     notesFromAPI.forEach(function (input) {
-      if (dates.includes(input.date)) {
-        dateDictCalories[input.date] += parseInt(input["calories"]);
-        dateDictHeartRate[input.date] += parseInt(input["heartRate"]);
-        dateDictCount[input.date] += 1;
+      var dateComponents = input.date.split("/");
+      var day = parseInt(dateComponents[0]);
+      var month = parseInt(dateComponents[1]) - 1;
+      var year = 2000 + parseInt(dateComponents[2]);
+      var date = new Date(year, month, day);
+
+      if (date >= quarter1Start && date <= quarter1End) {
+        dateDictCalories[0] += parseInt(input["calories"]);
+        dateDictHeartRate[0] += parseInt(input["heartRate"]);
+        dateDictCount[0] += 1;
+
+      } else if (date >= quarter2Start && date <= quarter2End) {
+        dateDictCalories[1] += parseInt(input["calories"]);
+        dateDictHeartRate[1] += parseInt(input["heartRate"]);
+        dateDictCount[1] += 1;
+
+      } else if (date >= quarter3Start && date <= quarter3End) {
+        dateDictCalories[2] += parseInt(input["calories"]);
+        dateDictHeartRate[2] += parseInt(input["heartRate"]);
+        dateDictCount[2] += 1;
+
+      } else if (date >= quarter4Start && date <= quarter4End) {
+        dateDictCalories[3] += parseInt(input["calories"]);
+        dateDictHeartRate[3] += parseInt(input["heartRate"]);
+        dateDictCount[3] += 1;
+
       }
     });
 
-    const finalWeeklyStats = [];
+    const finalMonthlyStats = [];
 
-    const daysOfWeek = ["Sun", "Mon", "Tues", "Wed", "Thurs", "Fri", "Sat"];
-    var idx = 0;
+    console.log("monthly stats");
+    console.log(dateDictCalories);
+    console.log(dateDictCount);
 
     for (var e of dates) {
-      if (dateDictHeartRate[e] !== 0 && dateDictCount !== 0) {
-        dateDictHeartRate[e] = Math.floor(
-          dateDictHeartRate[e] / dateDictCount[e]
+      if (dateDictCalories[e] !== 0 && dateDictCount[e] !== 0) {
+        console.log("after divide");
+        console.log(dateDictCalories[e]);
+        console.log(dateDictCount[e]);
+        dateDictCalories[e] = Math.floor(
+          dateDictCalories[e] / dateDictCount[e]
         );
+        
       }
 
       var tempDict = {
-        name: daysOfWeek[idx],
+        name: "Week " + (e + 1).toString(),
         calories: dateDictCalories[e],
         heartRate: dateDictHeartRate[e],
       };
-      finalWeeklyStats.push(tempDict);
-      idx += 1;
+      finalMonthlyStats.push(tempDict);
     }
 
-    setCaloriesHeartRate(finalWeeklyStats);
+    setCaloriesHeartRate(finalMonthlyStats);
+
   }
 
   async function createNote(event) {
@@ -346,8 +440,12 @@ const DashboardMonth = () => {
 
   const navigate = useNavigate();
 
-  const handleClick = () => {
+  const handleClickWeek = () => {
     navigate("/dashboard");
+  };
+
+  const handleClickYear = () => {
+    navigate("/dashboard-year");
   };
 
   return (
@@ -358,7 +456,7 @@ const DashboardMonth = () => {
             <RoundButton
               text="Week"
               color="gray"
-              onClick={() => handleClick()}
+              onClick={() => handleClickWeek()}
             />
           </div>
 
@@ -366,14 +464,14 @@ const DashboardMonth = () => {
             <RoundButton
               text="Month"
               color="#00bfff"
-              onClick={() => handleClick()}
+              onClick={() => console.log("month pressed")}
             />
           </div>
           <div className="filter__widget-01">
             <RoundButton
               text="Year"
               color="gray"
-              onClick={() => handleClick()}
+              onClick={() => handleClickYear()}
             />
           </div>
         </div>

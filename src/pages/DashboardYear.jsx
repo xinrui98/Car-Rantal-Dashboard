@@ -16,12 +16,10 @@ import { API } from "aws-amplify";
 import { listTodos } from "../graphql/queries";
 import { createTodo, deleteTodo } from "../graphql/mutations";
 
-import RoundButton from '../components/UI/RoundButton';
-import { useNavigate } from 'react-router-dom';
+import RoundButton from "../components/UI/RoundButton";
+import { useNavigate } from "react-router-dom";
 
-
-
-const Dashboard = () => {
+const DashboardYear = () => {
   const carObj = {
     title: "Total Climbs",
     totalNumber: 750,
@@ -46,7 +44,7 @@ const Dashboard = () => {
     icon: "ri-heart-pulse-fill",
   };
 
-  const [selectedColor, setSelectedColor] = useState('blue');
+  const [selectedColor, setSelectedColor] = useState("blue");
 
   const [notes, setNotes] = useState([]);
   const [climbs, setClimbs] = useState({});
@@ -78,7 +76,7 @@ const Dashboard = () => {
   }, {});
 
   useEffect(() => {
-    fetchWeeklyStats();
+    fetchMonthlyStats();
   }, {});
 
   useEffect(() => {
@@ -155,64 +153,91 @@ const Dashboard = () => {
     setHeartRate(heartRateObject);
   }
 
-  async function fetchWeeklyStats() {
+  async function fetchMonthlyStats() {
     const apiData = await API.graphql({ query: listTodos });
     const notesFromAPI = apiData.data.listTodos.items;
 
-    // instantiate weekly date dictionary
-    let dates = [];
+    let dates = [0, 1, 2, 3, 4, 5, 6, 7,8,9,10,11];
     let dateDictCalories = {};
+    let dateDictHeartRate = {};
     let dateDictCount = {};
+    var shortMonthNames = {
+      0: "Jan",
+      1: "Feb",
+      2: "Mar",
+      3: "Apr",
+      4: "May",
+      5: "Jun",
+      6: "Jul",
+      7: "Aug",
+      8: "Sep",
+      9: "Oct",
+      10: "Nov",
+      11: "Dec"
+    };
 
-    let date = new Date();
-    let dayOfWeek = date.getDay();
-    let diff = date.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1);
-    let firstDayOfWeek = new Date(date.setDate(diff));
+    dateDictCalories[0] = 0;
+    dateDictCalories[1] = 0;
+    dateDictCalories[2] = 0;
+    dateDictCalories[3] = 0;
+    dateDictCalories[4] = 0;
+    dateDictCalories[5] = 0;
+    dateDictCalories[6] = 0;
+    dateDictCalories[7] = 0;
+    dateDictCalories[8] = 0;
+    dateDictCalories[9] = 0;
+    dateDictCalories[10] = 0;
+    dateDictCalories[11] = 0;
 
-    for (let i = 0; i < 7; i++) {
-      let currentDate = new Date(firstDayOfWeek);
-      currentDate.setDate(currentDate.getDate() + i);
-      let formattedDate = currentDate.toLocaleDateString("en-GB", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "2-digit",
-      });
-      dates.push(formattedDate);
-      dateDictCalories[formattedDate] = 0;
-      dateDictCount[formattedDate] = 0;
+    dateDictCount[0] = 0;
+    dateDictCount[1] = 0;
+    dateDictCount[2] = 0;
+    dateDictCount[3] = 0;
+    dateDictCount[4] = 0;
+    dateDictCount[5] = 0;
+    dateDictCount[6] = 0;
+    dateDictCount[7] = 0;
+    dateDictCount[8] = 0;
+    dateDictCount[9] = 0;
+    dateDictCount[10] = 0;
+    dateDictCount[11] = 0;
 
-      notesFromAPI.forEach(function (input) {
-        if (dates.includes(input.date)) {
-          dateDictCalories[input.date] += parseInt(input["timeInSeconds"]);
-          dateDictCount[input.date] += 1;
-        }
-      });
+    var date = new Date();
+    var current_year = date.getFullYear();
 
-      const finalWeeklyStats = [];
+    notesFromAPI.forEach(function (input) {
+      var dateComponents = input.date.split("/");
+      var day = parseInt(dateComponents[0]);
+      var month = parseInt(dateComponents[1]) - 1;
+      var year = 2000 + parseInt(dateComponents[2]);
+      var date = new Date(year, month, day);
 
-      const daysOfWeek = ["Sun", "Mon", "Tues", "Wed", "Thurs", "Fri", "Sat"];
-      var idx = 0;
+      if (current_year==year){
+        var index = month
+        dateDictCalories[index] += parseInt(input["timeInSeconds"]);
+        dateDictCount[index] += 1;
+      }
+    });
 
-      console.log("dateDictCalories");
-      console.log(dateDictCalories);
+    const finalYearlyStats = [];
 
-      for (var e of dates) {
-        if (dateDictCalories[e] !== 0 && dateDictCount !== 0) {
-          dateDictCalories[e] = Math.floor(
-            dateDictCalories[e] / dateDictCount[e]
-          );
-        }
 
-        var tempDict = {
-          name: daysOfWeek[idx],
-          timeTaken: dateDictCalories[e],
-        };
-        finalWeeklyStats.push(tempDict);
-        idx += 1;
+    for (var e of dates) {
+      if (dateDictCalories[e] !== 0 && dateDictCount[e] !== 0) {
+        dateDictCalories[e] = Math.floor(
+          dateDictCalories[e] / dateDictCount[e]
+        );
+        
       }
 
-      setWeeklyStats(finalWeeklyStats);
+      var tempDict = {
+        name: shortMonthNames[e],
+        timeTaken: dateDictCalories[e],
+      };
+      finalYearlyStats.push(tempDict);
     }
+
+    setWeeklyStats(finalYearlyStats);
   }
 
   async function fetchColorPercentage() {
@@ -274,61 +299,107 @@ const Dashboard = () => {
     const apiData = await API.graphql({ query: listTodos });
     const notesFromAPI = apiData.data.listTodos.items;
 
-    // instantiate weekly date dictionary
-    let dates = [];
+    let dates = [0, 1, 2, 3, 4, 5, 6, 7,8,9,10,11];
     let dateDictCalories = {};
     let dateDictHeartRate = {};
     let dateDictCount = {};
 
-    let date = new Date();
-    let dayOfWeek = date.getDay();
-    let diff = date.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1);
-    let firstDayOfWeek = new Date(date.setDate(diff));
+    dateDictCalories[0] = 0;
+    dateDictCalories[1] = 0;
+    dateDictCalories[2] = 0;
+    dateDictCalories[3] = 0;
+    dateDictCalories[4] = 0;
+    dateDictCalories[5] = 0;
+    dateDictCalories[6] = 0;
+    dateDictCalories[7] = 0;
+    dateDictCalories[8] = 0;
+    dateDictCalories[9] = 0;
+    dateDictCalories[10] = 0;
+    dateDictCalories[11] = 0;
 
-    for (let i = 0; i < 7; i++) {
-      let currentDate = new Date(firstDayOfWeek);
-      currentDate.setDate(currentDate.getDate() + i);
-      let formattedDate = currentDate.toLocaleDateString("en-GB", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "2-digit",
-      });
-      dates.push(formattedDate);
-      dateDictCalories[formattedDate] = 0;
-      dateDictHeartRate[formattedDate] = 0;
-      dateDictCount[formattedDate] = 0;
-    }
+    dateDictHeartRate[0] = 0;
+    dateDictHeartRate[1] = 0;
+    dateDictHeartRate[2] = 0;
+    dateDictHeartRate[3] = 0;
+    dateDictHeartRate[4] = 0;
+    dateDictHeartRate[5] = 0;
+    dateDictHeartRate[6] = 0;
+    dateDictHeartRate[7] = 0;
+    dateDictHeartRate[8] = 0;
+    dateDictHeartRate[9] = 0;
+    dateDictHeartRate[10] = 0;
+    dateDictHeartRate[11] = 0;
+
+    dateDictCount[0] = 0;
+    dateDictCount[1] = 0;
+    dateDictCount[2] = 0;
+    dateDictCount[3] = 0;
+    dateDictCount[4] = 0;
+    dateDictCount[5] = 0;
+    dateDictCount[6] = 0;
+    dateDictCount[7] = 0;
+    dateDictCount[8] = 0;
+    dateDictCount[9] = 0;
+    dateDictCount[10] = 0;
+    dateDictCount[11] = 0;
+
+    var shortMonthNames = {
+      0: "Jan",
+      1: "Feb",
+      2: "Mar",
+      3: "Apr",
+      4: "May",
+      5: "Jun",
+      6: "Jul",
+      7: "Aug",
+      8: "Sep",
+      9: "Oct",
+      10: "Nov",
+      11: "Dec"
+    };
+
+    var date = new Date();
+    var current_year = date.getFullYear();
 
     notesFromAPI.forEach(function (input) {
-      if (dates.includes(input.date)) {
-        dateDictCalories[input.date] += parseInt(input["calories"]);
-        dateDictHeartRate[input.date] += parseInt(input["heartRate"]);
-        dateDictCount[input.date] += 1;
+      var dateComponents = input.date.split("/");
+      var day = parseInt(dateComponents[0]);
+      var month = parseInt(dateComponents[1]) - 1;
+      var year = 2000 + parseInt(dateComponents[2]);
+      var date = new Date(year, month, day);
+
+      if (current_year==year){
+        var index = month
+        dateDictCalories[index] += parseInt(input["calories"]);
+        dateDictHeartRate[index] += parseInt(input["heartRate"]);
+        dateDictCount[index] += 1;
       }
     });
 
-    const finalWeeklyStats = [];
+    const finalYearlyStats = [];
 
-    const daysOfWeek = ["Sun", "Mon", "Tues", "Wed", "Thurs", "Fri", "Sat"];
-    var idx = 0;
 
     for (var e of dates) {
-      if (dateDictHeartRate[e] !== 0 && dateDictCount !== 0) {
-        dateDictHeartRate[e] = Math.floor(
-          dateDictHeartRate[e] / dateDictCount[e]
+      if (dateDictCalories[e] !== 0 && dateDictCount[e] !== 0) {
+        console.log("after divide");
+        console.log(dateDictCalories[e]);
+        console.log(dateDictCount[e]);
+        dateDictCalories[e] = Math.floor(
+          dateDictCalories[e] / dateDictCount[e]
         );
+        
       }
 
       var tempDict = {
-        name: daysOfWeek[idx],
+        name: shortMonthNames[e],
         calories: dateDictCalories[e],
         heartRate: dateDictHeartRate[e],
       };
-      finalWeeklyStats.push(tempDict);
-      idx += 1;
+      finalYearlyStats.push(tempDict);
     }
 
-    setCaloriesHeartRate(finalWeeklyStats);
+    setCaloriesHeartRate(finalYearlyStats);
+
   }
 
   async function createNote(event) {
@@ -348,32 +419,43 @@ const Dashboard = () => {
 
   const navigate = useNavigate();
 
+  const handleClickWeek = () => {
+    navigate("/dashboard");
+  };
+
   const handleClickMonth = () => {
     navigate("/dashboard-month");
   };
-
-  const handleClickYear = () => {
-    navigate("/dashboard-year");
-  };
-
 
   return (
     <div className="dashboard">
       <div className="dashboard__wrapper">
         <div className="filter__widget-wrapper">
           <div className="filter__widget-01">
-            <RoundButton text="Week" color="#00bfff" onClick={() => console.log("week pressed")} />
+            <RoundButton
+              text="Week"
+              color="gray"
+              onClick={() => handleClickWeek()}
+            />
           </div>
 
           <div className="filter__widget-01">
-            <RoundButton text="Month" color="gray" onClick={() => handleClickMonth()} />
+            <RoundButton
+              text="Month"
+              color="gray"
+              onClick={() => handleClickMonth()}
+            />
           </div>
           <div className="filter__widget-01">
-            <RoundButton text="Year" color="gray" onClick={() => handleClickYear()} />
+            <RoundButton
+              text="Year"
+              color="#00bfff"
+              onClick={() => console.log("year clicked")}
+            />
           </div>
         </div>
 
-        <div style={{ height: '25px' }} />
+        <div style={{ height: "25px" }} />
 
         <div className="dashboard__cards">
           <SingleCard item={climbs} />
@@ -389,7 +471,9 @@ const Dashboard = () => {
           </div>
 
           <div className="stats">
-            <h3 className="stats__title">Total Calories Burnt (KCal) / AVG. Heart Rate (BPM)</h3>
+            <h3 className="stats__title">
+              Total Calories Burnt (KCal) / AVG. Heart Rate (BPM)
+            </h3>
             <CarStatsChart carStaticsData={caloriesHeartRate} />
           </div>
         </div>
@@ -404,4 +488,4 @@ const Dashboard = () => {
   );
 };
 
-export default Dashboard;
+export default DashboardYear;
