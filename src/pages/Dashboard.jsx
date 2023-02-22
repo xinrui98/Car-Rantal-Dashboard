@@ -90,6 +90,7 @@ const Dashboard = () => {
   }, []);
 
   async function fetchNotes() {
+    console.log("fetching notes")
     const apiData = await API.graphql({ query: listTodos });
     const notesFromAPI = apiData.data.listTodos.items;
     setNotes(notesFromAPI);
@@ -216,8 +217,11 @@ const Dashboard = () => {
   }
 
   async function fetchColorPercentage() {
+    console.log("fetching colors")
     const apiData = await API.graphql({ query: listTodos });
     const notesFromAPI = apiData.data.listTodos.items;
+    console.log(notesFromAPI)
+
 
     const length = notesFromAPI.length;
 
