@@ -15,9 +15,9 @@ const Sidebar = () => {
         <h2>
           <span>
             {/* <i class="ri-open-arm-fill"></i> */}
-            <i class="ri-wheelchair-line"></i>
+            {/* <i class="ri-wheelchair-line"></i> */}
           </span>{" "}
-          BlindClimb
+          ClimbAI
         </h2>
       </div>
 
