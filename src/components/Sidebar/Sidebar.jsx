@@ -14,8 +14,6 @@ const Sidebar = () => {
       <div className="sidebar__top">
         <h2>
           <span>
-            {/* <i class="ri-open-arm-fill"></i> */}
-            {/* <i class="ri-wheelchair-line"></i> */}
           </span>{" "}
           ClimbAI
         </h2>
@@ -44,9 +42,9 @@ const Sidebar = () => {
         </div>
 
         <div className="sidebar__bottom">
-          <span>
+          {/* <span>
             <i class="ri-logout-circle-r-line"></i> Logout
-          </span>
+          </span> */}
         </div>
       </div>
     </div>

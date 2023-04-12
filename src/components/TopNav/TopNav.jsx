@@ -19,9 +19,9 @@ const TopNav = () => {
             {/* <span className="badge">1</span> */}
           </span>
           <div className="profile">
-            <Link to="/settings">
-              <img src={profileImg} alt="" />
-            </Link>
+            {/* <Link to="/settings"> */}
+            <img src={profileImg} alt="" />
+            {/* </Link> */}
           </div>
         </div>
       </div>
